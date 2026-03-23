@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-dotenv
+requests
+psycopg2-binary
+psycopg2-binary
+bcrypt
+pyjwt
+python-multipart
