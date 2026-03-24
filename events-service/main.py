@@ -22,6 +22,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def read_root():
+    return {"service": "events-service", "status": "running"}
+
 @app.get("/events", response_model=List[EventOut])
 def get_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     events = db.query(Event).offset(skip).limit(limit).all()
