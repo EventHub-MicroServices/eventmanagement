@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Calendar, Users, Loader2 } from 'lucide-react';
+import { Calendar, Users, Loader2, MapPin } from 'lucide-react';
 
 export default function Events() {
   const [events, setEvents] = useState([]);
