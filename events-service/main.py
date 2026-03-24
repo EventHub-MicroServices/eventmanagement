@@ -7,10 +7,15 @@ from schemas import EventCreate, EventOut
 import os
 from typing import List
 from dotenv import load_dotenv
+import traceback
 
 load_dotenv()
 
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    print("Database init failed:")
+    traceback.print_exc()
 
 app = FastAPI(title="events-service")
 
@@ -28,8 +33,13 @@ def read_root():
 
 @app.get("/events", response_model=List[EventOut])
 def get_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    events = db.query(Event).offset(skip).limit(limit).all()
-    return events
+    try:
+        events = db.query(Event).offset(skip).limit(limit).all()
+        return events
+    except Exception as e:
+        error_trace = traceback.format_exc()
+        print(f"Error fetching events: {error_trace}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @app.post("/events", response_model=EventOut)
 def create_event(event: EventCreate, db: Session = Depends(get_db)):

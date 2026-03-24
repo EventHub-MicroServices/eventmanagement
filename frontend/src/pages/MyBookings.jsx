@@ -11,8 +11,11 @@ import {
   Printer, 
   X,
   CreditCard,
-  Hash
+  Hash,
+  Download
 } from 'lucide-react';
+import { toPng } from 'html-to-image';
+import { useRef } from 'react';
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
@@ -53,9 +56,18 @@ export default function MyBookings() {
   const getTicketForBooking = (bookingId) => tickets.find(t => t.booking_id === bookingId);
   const getEventForBooking = (eventId) => events.find(e => e.id === eventId);
 
-  const handlePrint = (e) => {
-    e.stopPropagation();
-    window.print();
+  const handleDownload = async (id) => {
+    const node = document.getElementById(`ticket-${id}`);
+    if (!node) return;
+    try {
+      const dataUrl = await toPng(node, { cacheBust: true, });
+      const link = document.createElement('a');
+      link.download = `ticket-${id}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Download failed', err);
+    }
   };
 
   const TicketCard = ({ booking, ticket, event, isModal = false }) => {
@@ -88,7 +100,7 @@ export default function MyBookings() {
             position: relative;
             background-color: #1e293b;
             background-image: linear-gradient(rgba(30, 41, 59, 0.85), rgba(30, 41, 59, 0.95)), 
-                              url(${event.image_url || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1000'});
+                              url(${event.image_url || 'https://image.pollinations.ai/prompt/Event%20Background?width=1000&height=500&nologo=true'});
             background-size: cover;
             background-position: center;
           }
@@ -159,14 +171,14 @@ export default function MyBookings() {
           }
         `}</style>
 
-        <div className="ticket-main">
+        <div className="ticket-main" id={`ticket-${booking.id}`}>
           <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
              <div style={{ backgroundColor: booking.status === 'PAID' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)', border: `1px solid ${booking.status === 'PAID' ? '#10b981' : '#f59e0b'}`, color: booking.status === 'PAID' ? '#10b981' : '#f59e0b', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '1px' }}>
                 {booking.status === 'PAID' ? 'CONFIRMED' : 'PENDING'}
              </div>
           </div>
           
-          <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1.5rem', color: 'white', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>{event.title}</h3>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1.5rem', color: 'white', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem', paddingRight: '4.5rem' }}>{event.title}</h3>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.2rem', marginBottom: '1rem' }}>
             <div>
@@ -197,13 +209,22 @@ export default function MyBookings() {
                </span>
             </div>
             {!isModal && (
-              <button 
-                onClick={(e) => { e.stopPropagation(); setSelectedTicket({ booking, ticket, event }); }}
-                className="btn btn-outline" 
-                style={{ padding: '0.3rem 0.7rem', fontSize: '0.7rem', height: 'auto' }}
-              >
-                Focus View
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleDownload(booking.id); }}
+                  className="btn btn-outline" 
+                  style={{ padding: '0.3rem 0.7rem', fontSize: '0.7rem', height: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <Download size={12} /> Download
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setSelectedTicket({ booking, ticket, event }); }}
+                  className="btn btn-outline" 
+                  style={{ padding: '0.3rem 0.7rem', fontSize: '0.7rem', height: 'auto' }}
+                >
+                  Focus View
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -229,13 +250,22 @@ export default function MyBookings() {
           )}
           
           {isModal && (
-            <button 
-              onClick={handlePrint}
-              className="btn btn-primary" 
-              style={{ marginTop: '1.2rem', width: '100%', padding: '0.5rem', fontSize: '0.8rem' }}
-            >
-              <Printer size={14} /> Get Pass
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', width: '100%', marginTop: '1.2rem' }}>
+              <button 
+                onClick={() => handleDownload(booking.id)}
+                className="btn btn-primary" 
+                style={{ width: '100%', padding: '0.5rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                <Download size={14} /> Download Ticket
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); window.print(); }}
+                className="btn btn-outline" 
+                style={{ width: '100%', padding: '0.5rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                <Printer size={14} /> Print Pass
+              </button>
+            </div>
           )}
         </div>
       </div>

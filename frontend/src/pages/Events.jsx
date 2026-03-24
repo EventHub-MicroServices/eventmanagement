@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Calendar, Users, Loader2, MapPin } from 'lucide-react';
+import { Calendar, Users, Loader2, MapPin, X, Sparkles } from 'lucide-react';
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -8,6 +8,8 @@ export default function Events() {
   const [bookingStatus, setBookingStatus] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiKeywords, setAiKeywords] = useState('');
   const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', capacity: 100, price: 0, image_url: '', location: '' });
 
   const [bookingStep, setBookingStep] = useState(null); // null, 'details', 'payment', 'success'
@@ -39,6 +41,23 @@ export default function Events() {
       fetchEvents();
     } catch (err) {
       alert("Failed to create event");
+    }
+  };
+
+  const handleAiGenerate = async () => {
+    if (!aiKeywords) return;
+    setIsAiLoading(true);
+    try {
+      const response = await axios.post('/api/ai/generate', { keywords: aiKeywords });
+      const { title, description, capacity, image_url } = response.data;
+      setNewEvent({ ...newEvent, title, description, capacity, image_url });
+      setAiKeywords('');
+    } catch (err) {
+      console.error("AI Generation failed", err);
+      const errorMsg = err.response?.data?.detail || "AI Generation failed. Check your API key or backend status.";
+      alert(errorMsg);
+    } finally {
+      setIsAiLoading(false);
     }
   };
 
@@ -95,8 +114,39 @@ export default function Events() {
 
       {showModal && (
         <div className="modal-overlay">
-          <div className="glass-card modal-content" style={{ maxWidth: '500px' }}>
-            <h3 style={{ marginBottom: '1.5rem' }}>Create New Event</h3>
+          <div className="glass-card modal-content" style={{ maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ margin: 0 }}>Create New Event</h3>
+              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-sub)', cursor: 'pointer' }}><X size={20}/></button>
+            </div>
+            
+            <div style={{ background: 'rgba(99, 102, 241, 0.05)', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                <div style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', padding: '5px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
+                  <Sparkles size={14} color="white"/>
+                </div>
+                <label className="input-label" style={{ color: 'var(--primary)', fontWeight: 700, margin: 0 }}>AI Smart Planner</label>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input 
+                  className="input-field" 
+                  style={{ flex: 1, fontSize: '0.85rem', background: 'rgba(0,0,0,0.2)' }} 
+                  placeholder="Keywords (e.g. AI Workshop London)" 
+                  value={aiKeywords}
+                  onChange={e => setAiKeywords(e.target.value)}
+                />
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', minWidth: '80px' }}
+                  onClick={handleAiGenerate}
+                  disabled={isAiLoading || !aiKeywords}
+                >
+                  {isAiLoading ? <Loader2 className="animate-spin" size={16} /> : "Fill Form"}
+                </button>
+              </div>
+            </div>
+
             <form onSubmit={handleCreateEvent}>
               <div className="input-group">
                 <label className="input-label">Title</label>
@@ -122,7 +172,7 @@ export default function Events() {
               </div>
               <div className="input-group">
                 <label className="input-label">Image URL</label>
-                <input className="input-field" placeholder="https://images.unsplash.com/..." value={newEvent.image_url} onChange={e => setNewEvent({...newEvent, image_url: e.target.value})} />
+                <input className="input-field" placeholder="https://image.pollinations.ai/prompt/..." value={newEvent.image_url} onChange={e => setNewEvent({...newEvent, image_url: e.target.value})} />
               </div>
               <div className="input-group">
                 <label className="input-label">Location (Venue)</label>

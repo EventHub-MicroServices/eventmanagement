@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+langchain-google-genai
+google-generativeai>=0.5.0
+python-dotenv
+pydantic
+requests
+langchain
+grpcio

@@ -11,7 +11,7 @@ services:
       - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -116,6 +116,16 @@ services:
       timeout: 5s
       retries: 5
 
+  ai-service:
+    build: ./ai-service
+    env_file:
+      - ./ai-service/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8007/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   frontend:
     build: ./frontend
     ports:
@@ -132,6 +142,8 @@ services:
       ticket-service:
         condition: service_healthy
       notification-service:
+        condition: service_healthy
+      ai-service:
         condition: service_healthy
 
 volumes:
