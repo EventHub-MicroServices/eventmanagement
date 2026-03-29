@@ -23,7 +23,11 @@ export default function Events() {
   // Auto-open create modal if navigated with ?create=true
   useEffect(() => {
     if (searchParams.get('create') === 'true') {
-      setShowModal(true);
+      if(!localStorage.getItem('user')) {
+        alert("Please login first to create an event!");
+      } else {
+        setShowModal(true);
+      }
       setSearchParams({}, { replace: true }); // clean up the URL
     }
   }, []);
@@ -50,7 +54,11 @@ export default function Events() {
     e.preventDefault();
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      await axios.post('/api/events/events', { ...newEvent, organizer_id: user?.id });
+      if (!user) {
+        alert("Please login first to create an event!");
+        return;
+      }
+      await axios.post('/api/events/events', { ...newEvent, organizer_id: user.id });
       setShowModal(false);
       setNewEvent({ title: '', description: '', date: '', capacity: 100, price: 0, image_url: '', location: '' });
       fetchEvents();
@@ -143,7 +151,13 @@ export default function Events() {
               onChange={e => setSearchQuery(e.target.value)}
               style={{ width: '250px' }}
             />
-            <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            <button className="btn btn-primary" onClick={() => {
+              if(!localStorage.getItem('user')) {
+                alert("Please login first to create an event!");
+                return;
+              }
+              setShowModal(true);
+            }}>
               + Create Event
             </button>
           </div>
@@ -304,7 +318,13 @@ export default function Events() {
       ) : events.length === 0 ? (
         <div className="glass-card" style={{ textAlign: 'center', padding: '4rem' }}>
           <p style={{ color: 'var(--text-sub)', marginBottom: '1.5rem' }}>No events found. Be the first to create one!</p>
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          <button className="btn btn-primary" onClick={() => {
+            if(!localStorage.getItem('user')) {
+              alert("Please login first to create an event!");
+              return;
+            }
+            setShowModal(true);
+          }}>
             Create Initial Event
           </button>
         </div>

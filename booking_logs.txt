@@ -1,0 +1,177 @@
+booking-service-1  | Traceback (most recent call last):
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/pymysql/connections.py", line 661, in connect
+booking-service-1  |     sock = socket.create_connection(
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/socket.py", line 863, in create_connection
+booking-service-1  |     raise exceptions[0]
+booking-service-1  |   File "/usr/local/lib/python3.11/socket.py", line 848, in create_connection
+booking-service-1  |     sock.connect(sa)
+booking-service-1  | ConnectionRefusedError: [Errno 111] Connection refused
+booking-service-1  | 
+booking-service-1  | During handling of the above exception, another exception occurred:
+booking-service-1  | 
+booking-service-1  | Traceback (most recent call last):
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 143, in __init__
+booking-service-1  |     self._dbapi_connection = engine.raw_connection()
+booking-service-1  |                              ^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3317, in raw_connection
+booking-service-1  |     return self.pool.connect()
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 448, in connect
+booking-service-1  |     return _ConnectionFairy._checkout(self)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1272, in _checkout
+booking-service-1  |     fairy = _ConnectionRecord.checkout(pool)
+booking-service-1  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 712, in checkout
+booking-service-1  |     rec = pool._do_get()
+booking-service-1  |           ^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+booking-service-1  |     with util.safe_reraise():
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+booking-service-1  |     raise exc_value.with_traceback(exc_tb)
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 175, in _do_get
+booking-service-1  |     return self._create_connection()
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 389, in _create_connection
+booking-service-1  |     return _ConnectionRecord(self)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 674, in __init__
+booking-service-1  |     self.__connect()
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 900, in __connect
+booking-service-1  |     with util.safe_reraise():
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+booking-service-1  |     raise exc_value.with_traceback(exc_tb)
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 896, in __connect
+booking-service-1  |     self.dbapi_connection = connection = pool._invoke_creator(self)
+booking-service-1  |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 667, in connect
+booking-service-1  |     return dialect.connect(*cargs_tup, **cparams)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 630, in connect
+booking-service-1  |     return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/pymysql/connections.py", line 365, in __init__
+booking-service-1  |     self.connect()
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/pymysql/connections.py", line 723, in connect
+booking-service-1  |     raise exc
+booking-service-1  | pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'booking-db' ([Errno 111] Connection refused)")
+booking-service-1  | 
+booking-service-1  | The above exception was the direct cause of the following exception:
+booking-service-1  | 
+booking-service-1  | Traceback (most recent call last):
+booking-service-1  |   File "/usr/local/bin/uvicorn", line 8, in <module>
+booking-service-1  |     sys.exit(main())
+booking-service-1  |              ^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1485, in __call__
+booking-service-1  |     return self.main(*args, **kwargs)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1406, in main
+booking-service-1  |     rv = self.invoke(ctx)
+booking-service-1  |          ^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1269, in invoke
+booking-service-1  |     return ctx.invoke(self.callback, **ctx.params)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 824, in invoke
+booking-service-1  |     return callback(*args, **kwargs)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/main.py", line 433, in main
+booking-service-1  |     run(
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/main.py", line 606, in run
+booking-service-1  |     server.run()
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/server.py", line 75, in run
+booking-service-1  |     return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+booking-service-1  |     return runner.run(main)
+booking-service-1  |            ^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/asyncio/runners.py", line 118, in run
+booking-service-1  |     return self._loop.run_until_complete(task)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+booking-service-1  |     return future.result()
+booking-service-1  |            ^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/server.py", line 79, in serve
+booking-service-1  |     await self._serve(sockets)
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/server.py", line 86, in _serve
+booking-service-1  |     config.load()
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/config.py", line 441, in load
+booking-service-1  |     self.loaded_app = import_from_string(self.app)
+booking-service-1  |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+booking-service-1  |     module = importlib.import_module(module_str)
+booking-service-1  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+booking-service-1  |     return _bootstrap._gcd_import(name[level:], package, level)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+booking-service-1  |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+booking-service-1  |   File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+booking-service-1  |   File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+booking-service-1  |   File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+booking-service-1  |   File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+booking-service-1  |   File "/app/main.py", line 17, in <module>
+booking-service-1  |     Base.metadata.create_all(bind=engine)
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 5928, in create_all
+booking-service-1  |     bind._run_ddl_visitor(
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3267, in _run_ddl_visitor
+booking-service-1  |     with self.begin() as conn:
+booking-service-1  |   File "/usr/local/lib/python3.11/contextlib.py", line 137, in __enter__
+booking-service-1  |     return next(self.gen)
+booking-service-1  |            ^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3257, in begin
+booking-service-1  |     with self.connect() as conn:
+booking-service-1  |          ^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3293, in connect
+booking-service-1  |     return self._connection_cls(self)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 145, in __init__
+booking-service-1  |     Connection._handle_dbapi_exception_noconnection(
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2448, in _handle_dbapi_exception_noconnection
+booking-service-1  |     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 143, in __init__
+booking-service-1  |     self._dbapi_connection = engine.raw_connection()
+booking-service-1  |                              ^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3317, in raw_connection
+booking-service-1  |     return self.pool.connect()
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 448, in connect
+booking-service-1  |     return _ConnectionFairy._checkout(self)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1272, in _checkout
+booking-service-1  |     fairy = _ConnectionRecord.checkout(pool)
+booking-service-1  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 712, in checkout
+booking-service-1  |     rec = pool._do_get()
+booking-service-1  |           ^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+booking-service-1  |     with util.safe_reraise():
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+booking-service-1  |     raise exc_value.with_traceback(exc_tb)
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 175, in _do_get
+booking-service-1  |     return self._create_connection()
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 389, in _create_connection
+booking-service-1  |     return _ConnectionRecord(self)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 674, in __init__
+booking-service-1  |     self.__connect()
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 900, in __connect
+booking-service-1  |     with util.safe_reraise():
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+booking-service-1  |     raise exc_value.with_traceback(exc_tb)
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 896, in __connect
+booking-service-1  |     self.dbapi_connection = connection = pool._invoke_creator(self)
+booking-service-1  |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 667, in connect
+booking-service-1  |     return dialect.connect(*cargs_tup, **cparams)
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 630, in connect
+booking-service-1  |     return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+booking-service-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/pymysql/connections.py", line 365, in __init__
+booking-service-1  |     self.connect()
+booking-service-1  |   File "/usr/local/lib/python3.11/site-packages/pymysql/connections.py", line 723, in connect
+booking-service-1  |     raise exc
+booking-service-1  | sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (2003, "Can't connect to MySQL server on 'booking-db' ([Errno 111] Connection refused)")
+booking-service-1  | (Background on this error at: https://sqlalche.me/e/20/e3q8)

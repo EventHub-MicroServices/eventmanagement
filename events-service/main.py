@@ -1,7 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException, Query
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from database import get_db
 from schemas import EventCreate, EventOut
@@ -9,6 +7,7 @@ import os
 from typing import List
 from dotenv import load_dotenv
 import random
+from pymongo import ReturnDocument
 
 load_dotenv()
 
@@ -81,8 +80,6 @@ def update_event(event_id: int, event_update: EventCreate, coll = Depends(get_db
     if not res:
         raise HTTPException(status_code=404, detail="Event not found")
     return format_event(res)
-
-from pymongo import ReturnDocument
 
 @app.put("/events/{event_id}/capacity")
 def reduce_capacity(event_id: int, amount: int = 1, coll = Depends(get_db)):

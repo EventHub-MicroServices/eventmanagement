@@ -13,7 +13,7 @@ class EventBase(BaseModel):
     organizer_id: Optional[int] = None
 
 class EventCreate(EventBase):
-    pass
+    organizer_id: int
 
 class EventOut(EventBase):
     id: int
