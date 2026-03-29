@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: booking-config
+data:
+  PORT: "8003"
+  DATABASE_URL: mysql+pymysql://root:password@booking-db:3306/booking_db
+  RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+  EVENTS_SERVICE_URL: http://events-service:8002
