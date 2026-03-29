@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: admin-config
+data:
+  PORT: "8008"
+
+  # Service URLs
+  BOOKING_SERVICE_HOST: "booking-service"
+  BOOKING_SERVICE_PORT: "8001"
+
+  EVENTS_SERVICE_HOST: "events-service"
+  EVENTS_SERVICE_PORT: "8002"
+
+  BOOKING_SERVICE_URL: "http://booking-service:8001"
+  EVENTS_SERVICE_URL: "http://events-service:8002"
+
+  # RabbitMQ host info (credentials in secret)
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_PORT: "5672"
