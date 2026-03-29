@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  labels:
+    app: users-service
+
+spec:
+  replicas: 3
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
+  selector:
+    matchLabels:
+      app: users-service
+
+  template:
+    metadata:
+      labels:
+        app: users-service
+
+    spec:
+      containers:
+        - name: users-service
+          image: team3kubectl/users-service:v1.0.0
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8001
+
+          envFrom:
+            - configMapRef:
+                name: users-config
+            - secretRef:
+                name: users-secret
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 5
