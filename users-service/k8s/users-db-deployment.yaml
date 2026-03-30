@@ -18,20 +18,26 @@ spec:
 
     spec:
       containers:
-        - name: mysql
-          image: mysql:8.0
+        - name: postgres
+          image: postgres:15
 
           ports:
-            - containerPort: 3306
+            - containerPort: 5432
 
           env:
-            - name: MYSQL_DATABASE
+            - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   name: users-config
                   key: DB_NAME
 
-            - name: MYSQL_ROOT_PASSWORD
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: users-secret
+                  key: DB_USER
+
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: users-secret
@@ -39,7 +45,7 @@ spec:
 
           volumeMounts:
             - name: users-db-storage
-              mountPath: /var/lib/mysql
+              mountPath: /var/lib/postgresql/data
 
           resources:
             requests:
@@ -55,7 +61,6 @@ spec:
       spec:
         accessModes: ["ReadWriteOnce"]
         storageClassName: users-db-storage
-
         resources:
           requests:
             storage: 5Gi

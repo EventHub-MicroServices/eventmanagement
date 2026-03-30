@@ -6,5 +6,5 @@ data:
   PORT: "8001"
 
   DB_HOST: "users-db"
-  DB_PORT: "3306"
-  DB_NAME: "usersdb"
+  DB_PORT: "5432"
+  DB_NAME: "users_db"
