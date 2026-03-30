@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: events-config
 data:
-  PORT: "8002"  PORT
+  PORT: "8002"
