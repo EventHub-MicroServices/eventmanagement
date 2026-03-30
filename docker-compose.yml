@@ -152,6 +152,8 @@ services:
 
   ai-service:
     build: ./ai-service
+    ports:
+      - "8007:8007"
     env_file:
       - ./ai-service/.env
     healthcheck:
