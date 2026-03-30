@@ -1,6 +1,6 @@
 namespace: team3-ns
 
-replicaCount: 2
+replicaCount: 1
 
 image:
   repository: team3kubectl/ticket-service
