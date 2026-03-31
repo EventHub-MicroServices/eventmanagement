@@ -25,9 +25,9 @@ spec:
             - containerPort: 8005
           envFrom:
             - configMapRef:
-              name: ticket-config
+                name: ticket-config
             - secretRef:
-              name: ticket-secret
+                name: ticket-secret
           resources:
             requests:
               memory: "128Mi"
