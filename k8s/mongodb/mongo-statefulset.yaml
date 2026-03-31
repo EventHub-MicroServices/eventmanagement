@@ -7,7 +7,7 @@ metadata:
     app: mongodb
 spec:
   serviceName: events-mongodb 
-  replicas: 3
+  replicas: 1
 
   selector:
     matchLabels:
@@ -18,64 +18,20 @@ spec:
       labels:
         app: mongodb
     spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - mongodb
-              topologyKey: kubernetes.io/hostname
       containers:
         - name: mongodb
           image: mongo:6.0
 
           command:
             - mongod
-            - "--replSet"
-            - "rs0"
             - "--bind_ip_all"
-            - "--auth"
-            - "--keyFile"
-            - "/etc/mongodb-keyfile/keyfile"
 
           ports:
             - containerPort: 27017
 
-          env:
-            - name: MONGO_INITDB_ROOT_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: MONGO_INITDB_ROOT_USERNAME
-
-            - name: MONGO_INITDB_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: MONGO_INITDB_ROOT_PASSWORD
-
           volumeMounts:
             - name: mongo-data
               mountPath: /data/db
-            - name: mongodb-keyfile
-              mountPath: /etc/mongodb-keyfile
-              readOnly: true
-
-          startupProbe:
-            exec:
-              command:
-              - mongo
-              - --eval
-              - "db.adminCommand('ping')"
-            initialDelaySeconds: 0
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 30
 
           livenessProbe:
             exec:
@@ -104,12 +60,6 @@ spec:
             limits:
               cpu: "500m"
               memory: "1Gi"
-
-      volumes:
-        - name: mongodb-keyfile
-          secret:
-            secretName: mongodb-keyfile
-            defaultMode: 0600
 
   volumeClaimTemplates:
     - metadata:
