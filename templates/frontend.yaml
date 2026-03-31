@@ -1,0 +1,89 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.service.targetPort }}
+      protocol: TCP
+  type: {{ .Values.frontend.service.type }}
+{{- end }}
+---
+{{- if .Values.frontend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: frontend
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.frontend.service.targetPort }}
+          resources:
+            requests:
+              cpu: {{ .Values.frontend.resources.requests.cpu | quote }}
+              memory: {{ .Values.frontend.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.frontend.resources.limits.cpu | quote }}
+              memory: {{ .Values.frontend.resources.limits.memory | quote }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.frontend.service.targetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.frontend.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+{{- end }}
+---
+{{- if and .Values.frontend.enabled .Values.frontend.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-hpa
+  namespace: {{ .Values.global.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend-deployment
+  minReplicas: {{ .Values.frontend.hpa.minReplicas }}
+  maxReplicas: {{ .Values.frontend.hpa.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.frontend.hpa.targetCPUUtilizationPercentage }}
+{{- end }}

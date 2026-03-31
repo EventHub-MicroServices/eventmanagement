@@ -1,0 +1,208 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.gateway.namespace }}
+{{- end }}
+---
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: event-gateway
+  namespace: {{ .Values.gateway.namespace }}
+  annotations:
+    # Provision a cloud load balancer for external traffic
+    networking.istio.io/service-type: LoadBalancer
+spec:
+  gatewayClassName: kgateway
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+{{- end }}
+---
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: users-route
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  parentRefs:
+    - name: event-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/users
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: users-service
+          namespace: {{ .Values.global.namespace }}
+          port: {{ .Values.users.service.port }}
+{{- end }}
+---
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: events-route
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  parentRefs:
+    - name: event-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/events
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: events-service
+          namespace: {{ .Values.global.namespace }}
+          port: {{ .Values.events.service.port }}
+{{- end }}
+---
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bookings-route
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  parentRefs:
+    - name: event-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/bookings
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: booking-service
+          namespace: {{ .Values.global.namespace }}
+          port: {{ .Values.booking.service.port }}
+{{- end }}
+---
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tickets-route
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  parentRefs:
+    - name: event-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/tickets
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: ticket-service
+          namespace: {{ .Values.global.namespace }}
+          port: {{ .Values.ticket.service.port }}
+{{- end }}
+---
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: payment-route
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  parentRefs:
+    - name: event-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/payments
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: payment-service
+          namespace: {{ .Values.global.namespace }}
+          port: {{ .Values.payment.service.port }}
+{{- end }}
+---
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: admin-route
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  parentRefs:
+    - name: event-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /admin
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: admin-service
+          namespace: {{ .Values.global.namespace }}
+          port: {{ .Values.admin.service.port }}
+{{- end }}
+---
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ai-route
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  parentRefs:
+    - name: event-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/ai
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: ai-service
+          namespace: {{ .Values.global.namespace }}
+          port: {{ .Values.aiService.service.port }}
+{{- end }}

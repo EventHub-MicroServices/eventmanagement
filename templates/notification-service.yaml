@@ -1,0 +1,98 @@
+{{- if .Values.notification.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  NODE_ENV: {{ .Values.notification.config.NODE_ENV | quote }}
+  PORT: {{ .Values.notification.config.PORT | quote }}
+  RABBITMQ_HOST: {{ .Values.notification.config.RABBITMQ_HOST | quote }}
+  RABBITMQ_PORT: {{ .Values.notification.config.RABBITMQ_PORT | quote }}
+{{- end }}
+---
+{{- if .Values.notification.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: notification-secret
+  namespace: {{ .Values.global.namespace }}
+type: Opaque
+data:
+  RABBITMQ_USER: {{ .Values.notification.secrets.RABBITMQ_USER | b64enc }}
+  RABBITMQ_PASSWORD: {{ .Values.notification.secrets.RABBITMQ_PASSWORD | b64enc }}
+  EMAIL_SERVICE_API_KEY: {{ .Values.notification.secrets.EMAIL_SERVICE_API_KEY | b64enc }}
+{{- end }}
+---
+{{- if .Values.notification.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - port: {{ .Values.notification.service.port }}
+      targetPort: {{ .Values.notification.service.targetPort }}
+      protocol: TCP
+  type: {{ .Values.notification.service.type }}
+{{- end }}
+---
+{{- if .Values.notification.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-deployment
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: notification-service
+spec:
+  replicas: {{ .Values.notification.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: "{{ .Values.notification.image.repository }}:{{ .Values.notification.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.notification.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: notification-config
+            - secretRef:
+                name: notification-secret
+          resources:
+            requests:
+              cpu: {{ .Values.notification.resources.requests.cpu | quote }}
+              memory: {{ .Values.notification.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.notification.resources.limits.cpu | quote }}
+              memory: {{ .Values.notification.resources.limits.memory | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.notification.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.notification.service.targetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+{{- end }}

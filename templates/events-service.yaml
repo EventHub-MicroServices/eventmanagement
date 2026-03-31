@@ -1,0 +1,104 @@
+{{- if .Values.events.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: events-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  NODE_ENV: {{ .Values.events.config.NODE_ENV | quote }}
+  PORT: {{ .Values.events.config.PORT | quote }}
+  MONGODB_HOST: {{ .Values.events.config.MONGODB_HOST | quote }}
+  MONGODB_PORT: {{ .Values.events.config.MONGODB_PORT | quote }}
+  LOG_LEVEL: {{ .Values.events.config.LOG_LEVEL | quote }}
+{{- end }}
+---
+{{- if .Values.events.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: events-secret
+  namespace: {{ .Values.global.namespace }}
+type: Opaque
+data:
+  {{- if .Values.events.secrets.MONGODB_USER }}
+  MONGODB_USER: {{ .Values.events.secrets.MONGODB_USER | b64enc }}
+  {{- end }}
+  {{- if .Values.events.secrets.MONGODB_PASSWORD }}
+  MONGODB_PASSWORD: {{ .Values.events.secrets.MONGODB_PASSWORD | b64enc }}
+  {{- end }}
+{{- end }}
+---
+{{- if .Values.events.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: events-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: events-service
+spec:
+  selector:
+    app: events-service
+  ports:
+    - port: {{ .Values.events.service.port }}
+      targetPort: {{ .Values.events.service.targetPort }}
+      protocol: TCP
+  type: {{ .Values.events.service.type }}
+{{- end }}
+---
+{{- if .Values.events.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: events-deployment
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: events-service
+spec:
+  replicas: {{ .Values.events.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: events-service
+  template:
+    metadata:
+      labels:
+        app: events-service
+    spec:
+      containers:
+        - name: events-service
+          image: "{{ .Values.events.image.repository }}:{{ .Values.events.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.events.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: events-config
+            {{- if or .Values.events.secrets.MONGODB_USER .Values.events.secrets.MONGODB_PASSWORD }}
+            - secretRef:
+                name: events-secret
+            {{- end }}
+          resources:
+            requests:
+              cpu: {{ .Values.events.resources.requests.cpu | quote }}
+              memory: {{ .Values.events.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.events.resources.limits.cpu | quote }}
+              memory: {{ .Values.events.resources.limits.memory | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.events.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.events.service.targetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+{{- end }}

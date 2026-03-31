@@ -1,0 +1,95 @@
+{{- if .Values.aiService.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  NODE_ENV: {{ .Values.aiService.config.NODE_ENV | quote }}
+  PORT: {{ .Values.aiService.config.PORT | quote }}
+  LOG_LEVEL: {{ .Values.aiService.config.LOG_LEVEL | quote }}
+{{- end }}
+---
+{{- if .Values.aiService.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ai-secret
+  namespace: {{ .Values.global.namespace }}
+type: Opaque
+data:
+  API_KEY: {{ .Values.aiService.secrets.API_KEY | b64enc }}
+{{- end }}
+---
+{{- if .Values.aiService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: ai-service
+spec:
+  selector:
+    app: ai-service
+  ports:
+    - port: {{ .Values.aiService.service.port }}
+      targetPort: {{ .Values.aiService.service.targetPort }}
+      protocol: TCP
+  type: {{ .Values.aiService.service.type }}
+{{- end }}
+---
+{{- if .Values.aiService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-deployment
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: ai-service
+spec:
+  replicas: {{ .Values.aiService.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: ai-service
+  template:
+    metadata:
+      labels:
+        app: ai-service
+    spec:
+      containers:
+        - name: ai-service
+          image: "{{ .Values.aiService.image.repository }}:{{ .Values.aiService.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.aiService.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: ai-config
+            - secretRef:
+                name: ai-secret
+          resources:
+            requests:
+              cpu: {{ .Values.aiService.resources.requests.cpu | quote }}
+              memory: {{ .Values.aiService.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.aiService.resources.limits.cpu | quote }}
+              memory: {{ .Values.aiService.resources.limits.memory | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.aiService.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.aiService.service.targetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+{{- end }}

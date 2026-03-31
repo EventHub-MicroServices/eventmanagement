@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-config
+data:
+  PORT: "8007"
+  GEMINI_MODEL: gemini-flash-latest

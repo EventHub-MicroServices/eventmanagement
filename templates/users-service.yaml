@@ -1,0 +1,99 @@
+{{- if .Values.users.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: users-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  NODE_ENV: {{ .Values.users.config.NODE_ENV | quote }}
+  PORT: {{ .Values.users.config.PORT | quote }}
+  DB_HOST: {{ .Values.users.config.DB_HOST | quote }}
+  DB_PORT: {{ .Values.users.config.DB_PORT | quote }}
+  DB_NAME: {{ .Values.users.config.DB_NAME | quote }}
+{{- end }}
+---
+{{- if .Values.users.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: users-secret
+  namespace: {{ .Values.global.namespace }}
+type: Opaque
+data:
+  DB_USER: {{ .Values.users.secrets.DB_USER | b64enc }}
+  DB_PASSWORD: {{ .Values.users.secrets.DB_PASSWORD | b64enc }}
+  JWT_SECRET: {{ .Values.users.secrets.JWT_SECRET | b64enc }}
+{{- end }}
+---
+{{- if .Values.users.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: users-service
+spec:
+  selector:
+    app: users-service
+  ports:
+    - port: {{ .Values.users.service.port }}
+      targetPort: {{ .Values.users.service.targetPort }}
+      protocol: TCP
+  type: {{ .Values.users.service.type }}
+{{- end }}
+---
+{{- if .Values.users.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: users-service
+spec:
+  replicas: {{ .Values.users.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: users-service
+  template:
+    metadata:
+      labels:
+        app: users-service
+    spec:
+      containers:
+        - name: users-service
+          image: "{{ .Values.users.image.repository }}:{{ .Values.users.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.users.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: users-config
+            - secretRef:
+                name: users-secret
+          resources:
+            requests:
+              cpu: {{ .Values.users.resources.requests.cpu | quote }}
+              memory: {{ .Values.users.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.users.resources.limits.cpu | quote }}
+              memory: {{ .Values.users.resources.limits.memory | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.users.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.users.service.targetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+{{- end }}

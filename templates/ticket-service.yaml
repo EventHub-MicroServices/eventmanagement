@@ -1,0 +1,98 @@
+{{- if .Values.ticket.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ticket-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  NODE_ENV: {{ .Values.ticket.config.NODE_ENV | quote }}
+  PORT: {{ .Values.ticket.config.PORT | quote }}
+  DB_HOST: {{ .Values.ticket.config.DB_HOST | quote }}
+  DB_PORT: {{ .Values.ticket.config.DB_PORT | quote }}
+  DB_NAME: {{ .Values.ticket.config.DB_NAME | quote }}
+{{- end }}
+---
+{{- if .Values.ticket.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ticket-secret
+  namespace: {{ .Values.global.namespace }}
+type: Opaque
+data:
+  DB_USER: {{ .Values.ticket.secrets.DB_USER | b64enc }}
+  DB_PASSWORD: {{ .Values.ticket.secrets.DB_PASSWORD | b64enc }}
+{{- end }}
+---
+{{- if .Values.ticket.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: ticket-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: ticket-service
+spec:
+  selector:
+    app: ticket-service
+  ports:
+    - port: {{ .Values.ticket.service.port }}
+      targetPort: {{ .Values.ticket.service.targetPort }}
+      protocol: TCP
+  type: {{ .Values.ticket.service.type }}
+{{- end }}
+---
+{{- if .Values.ticket.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticket-deployment
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: ticket-service
+spec:
+  replicas: {{ .Values.ticket.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: ticket-service
+  template:
+    metadata:
+      labels:
+        app: ticket-service
+    spec:
+      containers:
+        - name: ticket-service
+          image: "{{ .Values.ticket.image.repository }}:{{ .Values.ticket.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.ticket.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: ticket-config
+            - secretRef:
+                name: ticket-secret
+          resources:
+            requests:
+              cpu: {{ .Values.ticket.resources.requests.cpu | quote }}
+              memory: {{ .Values.ticket.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.ticket.resources.limits.cpu | quote }}
+              memory: {{ .Values.ticket.resources.limits.memory | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.ticket.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.ticket.service.targetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+{{- end }}

@@ -1,0 +1,98 @@
+{{- if .Values.booking.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: booking-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  NODE_ENV: {{ .Values.booking.config.NODE_ENV | quote }}
+  PORT: {{ .Values.booking.config.PORT | quote }}
+  DB_HOST: {{ .Values.booking.config.DB_HOST | quote }}
+  DB_PORT: {{ .Values.booking.config.DB_PORT | quote }}
+  DB_NAME: {{ .Values.booking.config.DB_NAME | quote }}
+{{- end }}
+---
+{{- if .Values.booking.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: booking-secret
+  namespace: {{ .Values.global.namespace }}
+type: Opaque
+data:
+  DB_USER: {{ .Values.booking.secrets.DB_USER | b64enc }}
+  DB_PASSWORD: {{ .Values.booking.secrets.DB_PASSWORD | b64enc }}
+{{- end }}
+---
+{{- if .Values.booking.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: booking-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: booking-service
+spec:
+  selector:
+    app: booking-service
+  ports:
+    - port: {{ .Values.booking.service.port }}
+      targetPort: {{ .Values.booking.service.targetPort }}
+      protocol: TCP
+  type: {{ .Values.booking.service.type }}
+{{- end }}
+---
+{{- if .Values.booking.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-deployment
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: booking-service
+spec:
+  replicas: {{ .Values.booking.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      containers:
+        - name: booking-service
+          image: "{{ .Values.booking.image.repository }}:{{ .Values.booking.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.booking.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: booking-config
+            - secretRef:
+                name: booking-secret
+          resources:
+            requests:
+              cpu: {{ .Values.booking.resources.requests.cpu | quote }}
+              memory: {{ .Values.booking.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.booking.resources.limits.cpu | quote }}
+              memory: {{ .Values.booking.resources.limits.memory | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.booking.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.booking.service.targetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+{{- end }}
