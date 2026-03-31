@@ -2,7 +2,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: users-route
-  namespace: default
+  namespace: team3-ns
 spec:
   parentRefs:
     - name: event-gateway
@@ -48,7 +48,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: bookings-route
-  namespace: default
+  namespace: team3-ns
 spec:
   parentRefs:
     - name: event-gateway
@@ -71,7 +71,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: payment-route
-  namespace: default
+  namespace: team3-ns
 spec:
   parentRefs:
     - name: event-gateway
@@ -94,7 +94,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: tickets-route
-  namespace: default
+  namespace: team3-ns
 spec:
   parentRefs:
     - name: event-gateway
@@ -117,7 +117,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: notifications-route
-  namespace: default
+  namespace: team3-ns 
 spec:
   parentRefs:
     - name: event-gateway
@@ -140,7 +140,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: ai-route
-  namespace: default
+  namespace: team3-ns 
 spec:
   parentRefs:
     - name: event-gateway
@@ -163,7 +163,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: admin-route
-  namespace: default
+  namespace: team3-ns 
 spec:
   parentRefs:
     - name: event-gateway
@@ -186,7 +186,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: frontend-route
-  namespace: default
+  namespace: team3-ns 
 spec:
   parentRefs:
     - name: event-gateway

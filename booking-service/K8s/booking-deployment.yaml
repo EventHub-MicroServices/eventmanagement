@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: booking-service
+  namespace: team3-ns 
 spec:
   replicas: 2
   strategy:
@@ -19,19 +20,29 @@ spec:
     spec:
       containers:
         - name: booking-service
-          image: team3kubectl/booking-service:v1.1.0
+          image: team3kubectl/booking-service:v1.1.1
+          imagePullPolicy: Always
           ports:
             - containerPort: 8003
           envFrom:
             - configMapRef:
                 name: booking-config
+            - secretRef:
+                name: booking-secret
           resources:
             requests:
               cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "300m"
+              cpu: "200m"
               memory: "256Mi"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8003
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /health
