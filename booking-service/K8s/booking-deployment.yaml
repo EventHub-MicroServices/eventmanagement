@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: payment-service
+  name: booking-service
 spec:
   replicas: 2
   strategy:
@@ -11,20 +11,20 @@ spec:
       maxSurge: 25%
   selector:
     matchLabels:
-      app: payment-service
+      app: booking-service
   template:
     metadata:
       labels:
-        app: payment-service
+        app: booking-service
     spec:
       containers:
-        - name: payment-service
-          image: team3kubectl/payment-service:v1.1.0
+        - name: booking-service
+          image: team3kubectl/booking-service:v1.1.0
           ports:
-            - containerPort: 8004
+            - containerPort: 8003
           envFrom:
             - configMapRef:
-                name: payment-config
+                name: booking-config
           resources:
             requests:
               cpu: "100m"
@@ -35,12 +35,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: 8004
+              port: 8003
             initialDelaySeconds: 10
             periodSeconds: 5
           livenessProbe:
             httpGet:
               path: /health
-              port: 8004
+              port: 8003
             initialDelaySeconds: 20
             periodSeconds: 10
