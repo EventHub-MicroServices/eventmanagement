@@ -23,7 +23,7 @@ spec:
           image: postgres:15
           ports:
             - containerPort: 5432
-          resource:
+          resources:
             requests:
               cpu: "100m"
               memory: "128Mi"
