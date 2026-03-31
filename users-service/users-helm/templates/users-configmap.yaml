@@ -4,6 +4,7 @@ metadata:
   name: users-config
   namespace: team3-ns
 data:
+  PORT: "8001"
   DB_HOST: postgres-db
   DB_PORT: "5432"
   DB_NAME: postgres
