@@ -8,8 +8,10 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: frontend
-  minReplicas: 1
-  maxReplicas: 3
+
+  minReplicas: 2
+  maxReplicas: 10
+
   metrics:
     - type: Resource
       resource:
@@ -17,3 +19,18 @@ spec:
         target:
           type: Utilization
           averageUtilization: 50
+
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+
+    scaleDown:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 30
