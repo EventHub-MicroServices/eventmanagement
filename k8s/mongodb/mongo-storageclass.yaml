@@ -4,6 +4,6 @@ metadata:
   name:  mongo-storageclass
 provisioner:  nfs.csi.k8s.io
 parameters:
-  server:  13.203.202.223   
+  server:  15.206.94.46  
   share:  /var/nfs/general
 volumeBindingMode:  Immediate
