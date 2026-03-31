@@ -1,13 +1,10 @@
-# ai-deployment.yaml
-# - ai-service.yaml (Service Name: ai-service | ClusterIP: 8007)
-# - ai-configmap.yaml
-# - ai-secret.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ai-deployment
   labels:
     app: ai-service
+  namespace: team3-ns
 spec:
   replicas: 3
   strategy:
