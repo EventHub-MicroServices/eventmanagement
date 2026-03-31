@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: payment-service
+  name: payment-deployment
+  namespace: team3-ns
 spec:
-  replicas: 2
+  replicas: 3
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -11,15 +12,16 @@ spec:
       maxSurge: 25%
   selector:
     matchLabels:
-      app: payment-service
+      app: payment-deploy
   template:
     metadata:
       labels:
-        app: payment-service
+        app: payment-deploy
     spec:
       containers:
-        - name: payment-service
-          image: team3kubectl/payment-service:v1.1.0
+        - name: payment-deploy
+          image: team3kubectl/payment-service:v1.1.1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8004
           envFrom:
