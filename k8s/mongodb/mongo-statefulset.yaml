@@ -109,7 +109,7 @@ spec:
         - name: mongodb-keyfile
           secret:
             secretName: mongodb-keyfile
-            defaultMode: 0400
+            defaultMode: 0600
 
   volumeClaimTemplates:
     - metadata:
