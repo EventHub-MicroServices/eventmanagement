@@ -3,9 +3,9 @@ namespace: team3-ns
 replicaCount: 1
 
 image:
-  repository: team3kubectl/frontend
+  repository: nginx
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: "stable-alpine3.23-perl"
 
 service:
   type: LoadBalancer
