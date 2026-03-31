@@ -2,10 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: admin-deployment
+  namespace: team3-ns
   labels:
     app: admin-service
+
 spec:
-  replicas: 3
+  replicas: 1
 
   strategy:
     type: RollingUpdate
@@ -21,10 +23,11 @@ spec:
     metadata:
       labels:
         app: admin-service
+
     spec:
       containers:
         - name: admin-service
-          image: team3kubectl/admin-service:v1.1.0
+          image: team3kubectl/admin-service:v1.1.1
           imagePullPolicy: Always
 
           ports:
