@@ -29,5 +29,5 @@ postgres:
   url: "postgresql://user:password@ticket-db:5432/ticket_db"
 
 config:
-  rabbitmq_url: "amqp://guest:guest@rabbitmq:5672/"
+  
   notification_service_url: "http://notification-service:8006"
