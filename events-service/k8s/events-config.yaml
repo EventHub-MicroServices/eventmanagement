@@ -8,4 +8,4 @@ data:
   MONGO_HOST:  events-mongodb
   MONGO_PORT:  "27017"
   MONGO_DB:  events_db
-  MONGO_URI: "mongodb://admin:adminpass@events-mongodb:27017/?authSource=admin&replicaSet=rs0"
+  MONGO_URI: "mongodb://events-mongodb:27017/?maxPoolSize=10"
