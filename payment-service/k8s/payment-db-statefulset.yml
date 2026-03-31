@@ -41,6 +41,7 @@ spec:
         name: payment-db-storage
       spec:
         accessModes: ["ReadWriteOnce"]
+        storageClassName: payment-db-storage
         resources:
           requests:
             storage: 1Gi
