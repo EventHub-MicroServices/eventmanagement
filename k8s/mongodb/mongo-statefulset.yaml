@@ -18,18 +18,18 @@ spec:
       labels:
         app: mongodb
     spec:
-      # affinity:
-      #   podAntiAffinity:
-      #     preferredDuringSchedulingIgnoredDuringExecution:
-      #     - weight: 100
-      #       podAffinityTerm:
-      #         labelSelector:
-      #           matchExpressions:
-      #           - key: app
-      #             operator: In
-      #             values:
-      #             - mongodb
-      #         topologyKey: kubernetes.io/hostname
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - mongodb
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: mongodb
           image: mongo:6.0
@@ -40,6 +40,8 @@ spec:
             - "rs0"
             - "--bind_ip_all"
             - "--auth"
+            - "--keyFile"
+            - "/etc/mongodb-keyfile/keyfile"
 
           ports:
             - containerPort: 27017
@@ -60,6 +62,9 @@ spec:
           volumeMounts:
             - name: mongo-data
               mountPath: /data/db
+            - name: mongodb-keyfile
+              mountPath: /etc/mongodb-keyfile
+              readOnly: true
 
           startupProbe:
             exec:
@@ -99,6 +104,12 @@ spec:
             limits:
               cpu: "500m"
               memory: "1Gi"
+
+      volumes:
+        - name: mongodb-keyfile
+          secret:
+            secretName: mongodb-keyfile
+            defaultMode: 0400
 
   volumeClaimTemplates:
     - metadata:
