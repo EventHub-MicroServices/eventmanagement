@@ -15,8 +15,16 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 8006;
-const REDIS_URL = process.env.REDIS_URL || 'redis://notification-redis:6379';
-const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672/';
+
+const REDIS_HOST = process.env.REDIS_HOST || 'notification-redis';
+const REDIS_PORT = process.env.REDIS_PORT || '6379';
+const REDIS_URL = process.env.REDIS_URL || `redis://${REDIS_HOST}:${REDIS_PORT}`;
+
+const RABBITMQ_USER = process.env.RABBITMQ_USER || 'guest';
+const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD || 'guest';
+const RABBITMQ_HOST = process.env.RABBITMQ_HOST || 'rabbitmq';
+const RABBITMQ_PORT = process.env.RABBITMQ_PORT || '5672';
+const RABBITMQ_URL = process.env.RABBITMQ_URL || `amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}/`;
 
 let redisClient;
 let amqpChannel;

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: users-db
+
+spec:
+  serviceName: users-db
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: users-db
+
+  template:
+    metadata:
+      labels:
+        app: users-db
+
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+
+          ports:
+            - containerPort: 5432
+
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: users-config
+                  key: DB_NAME
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: users-secret
+                  key: DB_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: users-secret
+                  key: DB_PASSWORD
+
+          volumeMounts:
+            - name: users-db-storage
+              mountPath: /var/lib/postgresql/data
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+  volumeClaimTemplates:
+    - metadata:
+        name: users-db-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: users-db-storage
+        resources:
+          requests:
+            storage: 5Gi

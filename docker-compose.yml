@@ -1,70 +1,27 @@
 version: '3.8'
 
 services:
-  users-db:
+  postgres-db:
     image: postgres:15
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=users_db
+    env_file:
+      - .env
     volumes:
-      - users_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d users_db" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  booking-db:
-    image: mysql:8.0
-    environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
-      - MYSQL_DATABASE=booking_db
-    volumes:
-      - booking_data:/var/lib/mysql
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d users_db" ]
       interval: 5s
       timeout: 5s
       retries: 5
 
   events-db:
     image: mongo:6.0
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - .env
     volumes:
       - events_data:/data/db
     healthcheck:
       test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  payment-db:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=payment_db
-    volumes:
-      - payment_data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d payment_db" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  ticket-db:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=ticket_db
-    volumes:
-      - ticket_data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ticket_db" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -81,6 +38,8 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
+    env_file:
+      - .env
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -94,11 +53,10 @@ services:
     build: ./users-service
     ports:
       - "8001:8001"
-    environment:
-      - PORT=8001
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@users-db:5432/users_db
+    env_file:
+      - ./users-service/.env
     depends_on:
-      users-db:
+      postgres-db:
         condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8001/\")'" ]
@@ -110,10 +68,8 @@ services:
     build: ./events-service
     ports:
       - "8002:8002"
-    environment:
-      - PORT=8002
-      - MONGO_URI=mongodb://${DB_USER}:${DB_PASSWORD}@events-db:27017/
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    env_file:
+      - ./events-service/.env
     depends_on:
       events-db:
         condition: service_healthy
@@ -129,13 +85,10 @@ services:
     build: ./booking-service
     ports:
       - "8003:8003"
-    environment:
-      - PORT=8003
-      - DATABASE_URL=mysql+pymysql://root:${DB_PASSWORD}@booking-db:3306/booking_db
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-      - EVENTS_SERVICE_URL=http://events-service:8002
+    env_file:
+      - ./booking-service/.env
     depends_on:
-      booking-db:
+      postgres-db:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
@@ -150,14 +103,10 @@ services:
     build: ./payment-service
     ports:
       - "8004:8004"
-    environment:
-      - PORT=8004
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@payment-db:5432/payment_db
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-      - BOOKING_SERVICE_URL=http://booking-service:8003
-      - TICKET_SERVICE_URL=http://ticket-service:8005
+    env_file:
+      - ./payment-service/.env
     depends_on:
-      payment-db:
+      postgres-db:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
@@ -171,13 +120,10 @@ services:
     build: ./ticket-service
     ports:
       - "8005:8005"
-    environment:
-      - PORT=8005
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@ticket-db:5432/ticket_db
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-      - NOTIFICATION_SERVICE_URL=http://notification-service:8006
+    env_file:
+      - ./ticket-service/.env
     depends_on:
-      ticket-db:
+      postgres-db:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
@@ -191,10 +137,8 @@ services:
     build: ./notification-service
     ports:
       - "8006:8006"
-    environment:
-      - PORT=8006
-      - REDIS_URL=redis://notification-redis:6379
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    env_file:
+      - ./notification-service/.env
     depends_on:
       notification-redis:
         condition: service_started
@@ -208,6 +152,8 @@ services:
 
   ai-service:
     build: ./ai-service
+    ports:
+      - "8007:8007"
     env_file:
       - ./ai-service/.env
     healthcheck:
@@ -220,11 +166,8 @@ services:
     build: ./admin-service
     ports:
       - "8008:8008"
-    environment:
-      - PORT=8008
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-      - BOOKING_SERVICE_URL=http://booking-service:8003
-      - EVENTS_SERVICE_URL=http://events-service:8002
+    env_file:
+      - ./admin-service/.env
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -240,8 +183,5 @@ services:
       - "3000:80"
 
 volumes:
-  users_data:
-  booking_data:
+  postgres_data:
   events_data:
-  payment_data:
-  ticket_data:

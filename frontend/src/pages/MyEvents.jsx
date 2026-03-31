@@ -187,16 +187,32 @@ export default function MyEvents() {
                 <input className="input-field" value={editFormData.title} onChange={e => setEditFormData({ ...editFormData, title: e.target.value })} required />
               </div>
               <div className="input-group">
-                <label className="input-label">Date</label>
-                <input type="date" className="input-field" value={editFormData.date} onChange={e => setEditFormData({ ...editFormData, date: e.target.value })} required />
+                <label className="input-label">Description</label>
+                <textarea className="input-field" style={{ minHeight: '80px', resize: 'vertical' }} value={editFormData.description} onChange={e => setEditFormData({ ...editFormData, description: e.target.value })} required />
+              </div>
+              <div className="input-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="input-group">
+                  <label className="input-label">Date</label>
+                  <input type="date" className="input-field" value={editFormData.date} onChange={e => setEditFormData({ ...editFormData, date: e.target.value })} required />
+                </div>
+                <div className="input-group">
+                  <label className="input-label">Location</label>
+                  <input className="input-field" value={editFormData.location} onChange={e => setEditFormData({ ...editFormData, location: e.target.value })} required />
+                </div>
+              </div>
+              <div className="input-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="input-group">
+                  <label className="input-label">Price ($)</label>
+                  <input type="number" className="input-field" value={editFormData.price} onChange={e => setEditFormData({ ...editFormData, price: parseFloat(e.target.value) })} required />
+                </div>
+                <div className="input-group">
+                  <label className="input-label">Capacity</label>
+                  <input type="number" className="input-field" value={editFormData.capacity} onChange={e => setEditFormData({ ...editFormData, capacity: parseInt(e.target.value) })} required />
+                </div>
               </div>
               <div className="input-group">
-                <label className="input-label">Price ($)</label>
-                <input type="number" className="input-field" value={editFormData.price} onChange={e => setEditFormData({ ...editFormData, price: parseFloat(e.target.value) })} required />
-              </div>
-              <div className="input-group">
-                <label className="input-label">Capacity</label>
-                <input type="number" className="input-field" value={editFormData.capacity} onChange={e => setEditFormData({ ...editFormData, capacity: parseInt(e.target.value) })} required />
+                <label className="input-label">Image URL</label>
+                <input className="input-field" placeholder="https://..." value={editFormData.image_url} onChange={e => setEditFormData({ ...editFormData, image_url: e.target.value })} />
               </div>
               <div className="flex-between" style={{ marginTop: '2rem' }}>
                 <button type="button" className="btn btn-outline" onClick={() => setEditingEvent(null)}>Cancel</button>

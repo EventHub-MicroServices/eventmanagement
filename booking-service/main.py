@@ -43,7 +43,13 @@ def health_check():
 
 EVENTS_SERVICE_URL = os.getenv("EVENTS_SERVICE_URL", "http://localhost:8002")
 
-RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://guest:guest@rabbitmq:5672/")
+RABBITMQ_URL = os.getenv("RABBITMQ_URL")
+if not RABBITMQ_URL:
+    rmq_user = os.getenv("RABBITMQ_USER", "guest")
+    rmq_pass = os.getenv("RABBITMQ_PASSWORD", "guest")
+    rmq_host = os.getenv("RABBITMQ_HOST", "rabbitmq")
+    rmq_port = os.getenv("RABBITMQ_PORT", "5672")
+    RABBITMQ_URL = f"amqp://{rmq_user}:{rmq_pass}@{rmq_host}:{rmq_port}/"
 
 def publish_notification(payload):
     try:
