@@ -23,6 +23,7 @@ spec:
           image: postgres:15
           ports:
             - containerPort: 5432
+
           resources:
             requests:
               cpu: "100m"
@@ -30,19 +31,31 @@ spec:
             limits:
               cpu: "300m"
               memory: "256Mi"
+
           envFrom:
             - configMapRef:
                 name: postgres-configmap
             - secretRef:
                 name: postgres-secret
+
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
+
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
+
+      volumes:
+        - name: init-script
+          configMap:
+            name: postgres-init-script
+            defaultMode: 0755   
+
   volumeClaimTemplates:
     - metadata:
         name: postgres-storage
       spec:
-        accessModes: ["ReadWriteMany"]
+        accessModes: ["ReadWriteOnce"]   
         storageClassName: payment-storageclass
         resources:
           requests:
