@@ -20,6 +20,24 @@ spec:
       labels:
         app: events-service
     spec:
+    affinity:
+      nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions: #OR'ed
+                  - key: env  #AND'ed
+                    operator: In 
+                    values:
+                     - dev
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: env
+                    operator: In
+                    values:
+                      - study
+                      - test
       containers:
         - name: events-service
           image: team3kubectl/events-service:v1.1.0
