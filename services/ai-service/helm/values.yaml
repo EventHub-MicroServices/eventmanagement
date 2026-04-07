@@ -1,0 +1,4 @@
+﻿replicaCount: 1
+image:
+  repository: your-dockerhub/ai-service
+  tag: latest

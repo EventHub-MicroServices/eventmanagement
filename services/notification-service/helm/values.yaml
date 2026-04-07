@@ -1,0 +1,4 @@
+﻿replicaCount: 1
+image:
+  repository: your-dockerhub/notification-service
+  tag: latest
