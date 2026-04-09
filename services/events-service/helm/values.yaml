@@ -1,0 +1,4 @@
+﻿replicaCount: 1
+image:
+  repository: your-dockerhub/events-service
+  tag: latest
