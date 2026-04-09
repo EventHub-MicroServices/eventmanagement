@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: events-deployment
+  namespace: {{ Values.nameSpace }}
+  labels:
+    app: events-service
+spec:
+  replicas: {{ Values.replicaCount }}
+  strategy:
+    type: {{ Values.deployment.strategy.type}}
+    rollingUpdate:
+      maxUnavailable: {{ Values.deployment.strategy.maxUnavailable }}
+      maxSurge: {{ Values.deployment.strategy.maxSurge }}
+  selector:
+    matchLabels:
+      app: events-service
+  template:
+    metadata:
+      labels:
+        app: events-service
+    spec:
+    # affinity:
+    #   nodeAffinity:
+    #       requiredDuringSchedulingIgnoredDuringExecution:
+    #         nodeSelectorTerms:
+    #           - matchExpressions: #OR'ed
+    #               - key: env  #AND'ed
+    #                 operator: In 
+    #                 values:
+    #                  - dev
+    #       preferredDuringSchedulingIgnoredDuringExecution:
+    #         - weight: 1
+    #           preference:
+    #             matchExpressions:
+    #               - key: env
+    #                 operator: In
+    #                 values:
+    #                   - study
+    #                   - test
+      containers:
+        - name: events-service
+          image: {{ .Values.image }}:{{ .Values.imageTag }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8002
+          envFrom:
+            - configMapRef:
+                name: events-config
+            - secretRef:
+                name: events-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 10
+            periodSeconds: 5

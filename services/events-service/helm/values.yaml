@@ -1,4 +1,17 @@
-﻿replicaCount: 1
-image:
-  repository: your-dockerhub/events-service
-  tag: latest
+﻿replicaCount: 3
+nameSpace:  team3-ns
+
+
+deployment:
+  strategy: 
+    type: RollingUpdate
+    maxSurge: 1
+    maxUnavailable: 1
+image: team3kubectl/events-service
+imageTag: v1.1.0
+
+service:
+  type:  ClusterIP
+  port:  8002
+  targetPort:  8002
+
