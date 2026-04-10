@@ -1,0 +1,42 @@
+# =========================================================
+# Bitnami PostgreSQL Standalone Configuration
+# =========================================================
+postgresql:
+  # Using a single standalone replica instead of a high-availability cluster
+  architecture: standalone
+  auth:
+    postgresPassword: "supersecretpassword"
+    # Bitnami will automatically create this database on the very first boot
+    database: "users_db"
+    
+  # PRO TIP: The `primary.initdb.scripts` block allows you to run multiple 
+  # CREATE DATABASE commands natively without needing an external init script!
+  # Un-comment the block below if you need more than 1 database created on startup.
+  # primary:
+  #   initdb:
+  #     scripts:
+  #       setup-multiple-dbs.sql: |
+  #         CREATE DATABASE booking_db;
+  #         CREATE DATABASE events_db;
+
+# =========================================================
+# Bitnami MongoDB Standalone Configuration
+# =========================================================
+mongodb:
+  # Standalone architecture instead of replicaset
+  architecture: standalone
+  auth:
+    rootPassword: "supersecretpassword"
+    # You can specify initial custom MongoDB users here as well if needed
+    # usernames: ["event_admin"]
+    # passwords: ["password123"]
+    # databases: ["events_db"]
+
+# =========================================================
+# Bitnami Redis Standalone Configuration
+# =========================================================
+redis:
+  # Ensures a master-only standalone redis instance
+  architecture: standalone
+  auth:
+    password: "supersecretpassword"

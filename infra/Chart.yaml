@@ -1,0 +1,20 @@
+apiVersion: v2
+name: eventmanagement-infra
+description: Centralized infrastructure deployment for the Event Management System using Bitnami
+type: application
+version: 1.0.0
+
+# This is where the magic happens!
+# Helm will download the exact versions of these Bitnami charts automatically.
+dependencies:
+  - name: postgresql
+    version: "15.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    
+  - name: mongodb
+    version: "14.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    
+  - name: redis
+    version: "18.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
