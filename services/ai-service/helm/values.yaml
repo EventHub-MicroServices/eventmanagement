@@ -1,4 +1,5 @@
 ﻿replicaCount: 1
+nameSpace: team3-ns
 image:
-  repository: your-dockerhub/ai-service
-  tag: latest
+  repository: team3kubectl/ai-service
+  tag: v1.1.1
