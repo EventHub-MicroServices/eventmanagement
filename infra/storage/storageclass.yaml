@@ -5,6 +5,6 @@ metadata:
   namespace: team3-ns
 provisioner:  nfs.csi.k8s.io
 parameters:
-  server:  172.31.1.125
-  share:  /var/nfs/team3
+  server:  13.206.107.137
+  share:  /var/nfs/general
 volumeBindingMode:  Immediate
